@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>eScanning</title>
+
+		<link rel="stylesheet" href="static/css/bootstrap-3.2.0.css">
+		<link rel="stylesheet" href="static/css/bootstrap-theme-3.2.0.css">
+		<link rel="stylesheet" href="static/css/esc_custom.css">
+		<link  href="static/css/cropper.css" rel="stylesheet">
+		<script src="static/js/jquery-1.11.1.min.js"></script>
+		<title>eScanning</title>
+	</head>
+
+	<body>
+		<div class="bs-example">
+			<div class="table-responsive">
+			<table class="table table-bordered heading">
+					<thead >
+						<tr >
+							<th class="esc-options" >eScanning</th>
+							<th class="esc-workarea" >Image Document</th>
+						</tr>
+					</thead>
+			</table>
+				<table class="table table-bordered">
+					<thead >
+						<tr >
+							<th >eScanning</th>
+							<th >Image Document</th>
+						</tr>
+					</thead>
+					
+					<tbody>
+						<tr>
+							<td class="esc-options">
+							<table >
+								<tbody>
+							
+									<tr>
+										<td>
+										<button id="launch_scanner" class="btn btn-primary" >
+											Launch Scanner
+										</button></td>
+										<td>
+										<button type="button" class="btn btn-default">
+											LargePrimary
+										</button></td>
+									</tr>
+									<tr>
+										<td>
+										<button type="button" class="btn btn-default">
+											LargePrimary
+										</button></td>
+										<td>
+										<button type="button" class="btn btn-default">
+											LargePrimary
+										</button></td>
+									</tr>
+							
+									</tr>
+								</tbody>
+							</table></td>
+							<td class="esc-workarea">
+							<table >
+								<tr>
+									<td>
+									<div class="row">
+									
+										<div class="col-xs-6 col-md-4">
+											<a href="#" class="thumbnail"> <img id="s1" style=" height:200px; width:200x; display: block;" src="static/images/2.jpg"></img> </a>
+										</div>
+										<div class="col-xs-6 col-md-4">
+											<a href="#" class="thumbnail"> <img id="s1" style=" height:200px; width:200x; display: block;" src="static/images/2.jpg"></img> </a>
+										</div>
+										<div class="col-xs-6 col-md-4">
+											<a href="#" class="thumbnail"> <img id="s1" style=" height:200px; width:200x; display: block;" src="static/images/2.jpg"></img> </a>
+										</div>
+																				
+									</div>
+									</td>
+									
+								</tr>
+							</table></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<form id="hidden_form">
+			
+		<form>
+		<div id="footer">
+			Copyright &copy; 2005. eSolve Technologies Pvt. Ltd. All rights reserved.&nbsp;Site best viewed on IE 9+, Firefox and Chrome at 1024x768 resolution.
+		</div>
+
+		<!-- Large modal -->
+
+		<div class="modal bs-example-modal-lg" id="bootstrap-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+
+						<table>
+							<tr>
+
+								<!--		<td>
+								<button type="button" class="btn btn-default">
+								<span class="glyphicon glyphicon-circle-arrow-left"></span>
+								</button></td>
+								<td>
+								<button type="button" class="btn btn-default">
+								<span class="glyphicon glyphicon-circle-arrow-right"></span>
+								</button></td>
+								<td>
+								<button type="button" class="btn btn-default">
+								<span class="glyphicon glyphicon-circle-arrow-up"></span>
+								</button></td><td>
+								<button type="button" class="btn btn-default">
+								<span class="glyphicon glyphicon-circle-arrow-down"></span>
+								</button></td>
+								<td>
+								<button type="button" class="btn btn-default">
+								<span class="glyphicon glyphicon-retweet"></span>
+								</button></td>
+								-->
+								<td>
+								<button id="rotate" type="button" class="btn btn-default">
+									<span class="glyphicon glyphicon-retweet"></span>
+								</button></td>
+								<td>
+								<button id="zoom_in" type="button" class="btn btn-default">
+									<span class="glyphicon glyphicon-plus"></span>
+								</button></td><td>
+								<button id="zoom_out" type="button" class="btn btn-default">
+									<span class="glyphicon glyphicon-minus"></span>
+								</button></td>
+							</tr>
+						</table>
+
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title">Modal title</h4>
+					</div>
+					<div class="modal-body">
+						<div class="modal-body-left">
+							<div class="bootstrap-modal-cropper"><img id="editPoint" src="" data-rotate="90"></img>
+							</div>
+						</div>
+						<div class="modal-body-right">
+							<div class="img-preview"></div>
+							<div class="cropped-preview">
+								<img id="croped-img" src="" data-rotate="90"></img>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="crop"type="button" class="btn btn-default" >
+							Crop
+						</button>
+						<button id="new_scan" type="button" class="btn btn-default" >
+							New Scan
+						</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							Close
+						</button>
+						<button type="button" class="btn btn-primary">
+							Save Changes
+						</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<!-- End modal -->
+
+		<script src="static/js/bootstrap-3.2.0.js"></script>
+		<script src="static/js/cropper.js"></script>
+		<script type="text/javascript" src="static/js/esc_custom.js"></script>
+
+	</body>
+</html>

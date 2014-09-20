@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+	<script src="../js/base64.js"></script>
+<script src="../js/canvas2image.js"></script>
+
+<link rel="stylesheet" type="text/css" media="all" href="css/reset.css" /> <!-- reset css -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<style>
+    body{ background-color: ivory; }
+    canvas{border:1px solid red;}
+</style>
+
+
+</head>
+
+<body>
+    <canvas id="canvas" width=300 height=300></canvas><br>
+    <img id="canvasimage"></img>
+    <button id="clockwise">Rotate right</button>
+    <button id="counterclockwise">Rotate left</button>
+    <input type="button" id="convertpngbtn" value="Convert to PNG">
+	<input type="button" id="convertjpegbtn" value="Convert to JPEG">
+</body>
+<script>
+var canvas=document.getElementById("canvas");
+var ctx=canvas.getContext("2d");
+
+
+var angleInDegrees=0;
+
+var image=document.createElement("img");
+image.onload=function(){
+    ctx.drawImage(image,canvas.width/2-image.width/2,canvas.height/2-image.width/2);
+}
+image.src="https://dl.dropboxusercontent.com/u/139992952/stackoverflow/house-icon.png";
+
+$("#clockwise").click(function(){ 
+    angleInDegrees+=90;
+    drawRotated(angleInDegrees);
+});
+
+$("#counterclockwise").click(function(){ 
+    angleInDegrees-=90;
+    drawRotated(angleInDegrees);
+});
+
+function drawRotated(degrees){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.save();
+    ctx.translate(canvas.width/2,canvas.height/2);
+    ctx.rotate(degrees*Math.PI/180);
+    ctx.drawImage(image,-image.width/2,-image.width/2);
+    ctx.restore();
+    
+}
+
+	function convertCanvas(strType) {
+		if (strType == "PNG")
+			var oImg = Canvas2Image.saveAsPNG(canvas, true);
+		if (strType == "BMP")
+			var oImg = Canvas2Image.saveAsBMP(canvas, true);
+		if (strType == "JPEG")
+			var oImg = Canvas2Image.saveAsJPEG(canvas, true);
+
+		if (!oImg) {
+			alert("Sorry, this browser is not capable of saving " + strType + " files!");
+			return false;
+		}
+
+		oImg.id = "canvasimage";
+		alert(oImg);
+		oImg.style.border = canvas.style.border;
+		document.body.replaceChild(oImg, canvas);
+
+	}
+	
+
+	document.getElementById("convertpngbtn").onclick = function() {
+		convertCanvas("PNG");
+	}
+
+	document.getElementById("convertjpegbtn").onclick = function() {
+		convertCanvas("JPEG");
+	}	
+//var strDataURI = canvas.toDataURL("image/jpeg"); 
+//alert(strDataURI);
+//Canvas2Image.saveAsJPEG(canvas);
+//var oImgPNG = Canvas2Image.saveAsPNG(canvas, true);
+Canvas2Image.saveAsPNG(canvas, true);
+ 
+
+
+</script>
+
+</html>

@@ -1,0 +1,464 @@
+<!--
+	Morena 7 - Image Acquisition Framework  
+ 
+  Copyright (c) 1999-2011 Gnome spol. s r.o. All Rights Reserved.
+  This software is the confidential and proprietary information of
+  Gnome spol. s r.o. You shall not disclose such Confidential
+  Information and shall use it only in accordance with the terms
+  of the license agreement you entered into with Gnome.
+-->
+
+	<project name="morena7" default="build" basedir=".">
+
+  <property file="${user.home}/build7.properties" />
+	
+	<property name="VERSION_MAJOR" value="7" />
+  <property name="VERSION_MINOR" value="1" />
+	<property name="VERSION_BUILD" value="25" />
+	
+  <target name="check_os">
+    <condition property="is_windows">
+      <os family="windows" />
+    </condition>
+    <condition property="is_osx">
+      <and>
+        <os family="mac" />
+        <os family="unix" />
+      </and>
+    </condition>
+  </target>
+  
+  <target name="build_classes">
+    <mkdir dir="tmp"/>
+    <mkdir dir="lib"/>
+    <tstamp>
+      <format property="BUILD_DATE" pattern="dd/MM/yyyy"/>
+      <format property="BUILD_TIME" pattern="HH:mm:ss"/>
+    </tstamp>
+    <filter token="VERSION_MAJOR" value="${VERSION_MAJOR}" />
+    <filter token="VERSION_MINOR" value="${VERSION_MINOR}" />
+    <filter token="VERSION_BUILD" value="${VERSION_BUILD}" />
+    <filter token="BUILD_DATE" value="${BUILD_DATE}" />
+    <filter token="BUILD_TIME" value="${BUILD_TIME}" />
+    <copy file="src/template/Version.java" tofile="src/java/eu/gnome/morena/Version.java" filtering="true" overwrite="true"/>
+    <copy file="src/template/WIAVersion.cpp" tofile="src/jni/wia/WIAVersion.cpp" filtering="true" overwrite="true"/>
+    <copy file="src/template/ICAVersion.m" tofile="src/jni/ica/ICAVersion.m" filtering="true" overwrite="true"/>
+    <javac srcdir="src/java" destdir="tmp" debug="off" optimize="on" nowarn="true" source="1.5" target="1.5">
+        <include name="**/*.java" />
+        <exclude name="MorenaStudioFX7.java"/>
+    </javac>
+    <copy todir="tmp" overwrite="true">
+      <fileset dir="build">
+          <include name="MorenaStudioFX7*.class"/>
+      </fileset>
+    </copy>
+    
+    <jar jarfile="lib/morena${VERSION_MAJOR}.jar" basedir="tmp" includes="**/*.class">
+      <manifest>
+        <attribute name="Specification-Title" value="Morena - Image Acquisition Framework ${VERSION_MAJOR}.${VERSION_MINOR} build ${VERSION_BUILD}" />
+        <attribute name="Specification-Version" value="${VERSION_MAJOR}.${VERSION_MINOR}" />
+        <attribute name="Specification-Vendor" value="Gnome spol. s r. o." />
+        <attribute name="Implementation-Vendor" value="Gnome spol. s r. o." />
+      	<attribute name="Class-Path" value="morena7_win.jar morena7_osx.jar morena_license.jar" />
+        <attribute name="Application-Name" value="Morena ${VERSION_MAJOR}" />
+        <attribute name="Permissions" value="all-permissions" />
+      	<attribute name="Main-Class" value="MorenaStudio" />
+      </manifest>
+    </jar>
+    <signjar jar="lib/morena${VERSION_MAJOR}.jar" alias="jarsigning" storepass="${storepass}" keypass="${keypass}" keystore="${keystore}" />
+  </target>
+  
+  <target name="build_win_jni" depends="check_os" if="is_windows">
+    <mkdir dir="tmp"/>
+    <mkdir dir="lib"/>
+  	<!--
+    <javah destdir="src/jni/wia" classpath="tmp" class="eu.gnome.morena.wia.WIAManager" />
+    <javah destdir="src/jni/wia" classpath="tmp" class="eu.gnome.morena.wia.WIADevice"/>
+    <javah destdir="src/jni/wia" classpath="tmp" class="eu.gnome.morena.wia.WIACamera"/>
+    <javah destdir="src/jni/wia" classpath="tmp" class="eu.gnome.morena.wia.WIAScanner"/>
+    -->
+    <exec dir="." command="javah -d src/jni/wia -classpath tmp eu.gnome.morena.wia.WIAManager eu.gnome.morena.wia.WIADevice eu.gnome.morena.wia.WIACamera eu.gnome.morena.wia.WIAScanner"/>
+  	<!-- 32 bit -->
+  	<!-- WIA1 -->
+    <exec dir="tmp" executable="${C_BIN}\cl.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/c"/>
+    	<arg value="/MT"/>
+    	<arg value="/TP"/>
+    	<arg value="/Od"/>
+      <arg value="/EHsc"/>
+      <arg value="/nologo"/>
+    	<arg value="/I"/><arg value="${C_INCLUDE}"/>
+    	<arg value="/I"/><arg value="${SDK_INCLUDE}"/>
+    	<arg value="/I"/><arg value="${JDK_HOME}\include"/>
+    	<arg value="/I"/><arg value="${JDK_HOME}\include\win32"/>
+    	<arg value="/I"/><arg value="src\jni\wia"/>
+    	<arg value="/D"/><arg value="WIN32"/>
+    	<arg value="/D"/><arg value="NDEBUG"/>
+    	<arg value="/D"/><arg value="_WINDOWS"/>
+    	<arg value="/D"/><arg value="_USRDLL"/>
+    	<arg value="/D"/><arg value="INC_OLE2"/>
+    	<arg value="/D"/><arg value="__WIN__"/>
+    	<arg value="/D"/><arg value="_MSWIN_"/>
+    	<arg value="/D"/><arg value="_TRACE_"/>
+    	<arg value="/D"/><arg value="_STATIC_CPPLIB"/>
+      <arg value="/D"/><arg value="WIA1"/>
+    	<arg value="..\src\jni\wia\WIAManager.cpp"/>
+      <arg value="..\src\jni\wia\WIADevice.cpp"/>
+      <arg value="..\src\jni\wia\WIACamera.cpp"/>
+      <arg value="..\src\jni\wia\WIAScanner.cpp"/>
+      <arg value="..\src\jni\wia\WIAUtils.cpp"/>
+      <arg value="..\src\jni\wia\WIAVersion.cpp"/>
+    </exec>
+    <exec dir="tmp" executable="${C_BIN}\link.exe">
+      <env key="PATH" path="${C_PATH}"/>
+    	<arg value="/LIBPATH:${C_LIB}"/>
+    	<arg value="/LIBPATH:${SDK_LIB}"/>
+    	<arg value="/OUT:morena32W1_${VERSION_BUILD}.dll"/>
+    	<arg value="/INCREMENTAL:NO"/>
+    	<arg value="/NOLOGO"/>
+    	<arg value="/DLL"/>
+    	<arg value="/SUBSYSTEM:WINDOWS"/>
+    	<arg value="/OPT:REF"/>
+    	<arg value="/OPT:ICF"/>
+    	<arg value="/MACHINE:X86"/>
+    	<arg value="/ERRORREPORT:PROMPT"/>
+    	<arg value="WIAManager.obj"/>
+      <arg value="WIADevice.obj"/>
+      <arg value="WIACamera.obj"/>
+      <arg value="WIAScanner.obj"/>
+      <arg value="WIAUtils.obj"/>
+      <arg value="WIAVersion.obj"/>
+      <arg value="kernel32.lib"/>
+      <arg value="user32.lib"/>
+    	<arg value="gdi32.lib"/>
+    	<arg value="winspool.lib"/>
+    	<arg value="comdlg32.lib"/>
+    	<arg value="advapi32.lib"/>
+    	<arg value="shell32.lib"/>
+    	<arg value="ole32.lib"/>
+    	<arg value="oleaut32.lib"/>
+    	<arg value="wiaguid.lib"/>
+    	<arg value="uuid.lib"/>
+    	<arg value="ShLwApi.Lib"/>
+    </exec>
+<!-- WIA2 -->    
+    <exec dir="tmp" executable="${C_BIN}\cl.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/c"/>
+      <arg value="/MT"/>
+      <arg value="/TP"/>
+      <arg value="/Od"/>
+      <arg value="/EHsc"/>
+      <arg value="/nologo"/>
+      <arg value="/I"/><arg value="${C_INCLUDE}"/>
+      <arg value="/I"/><arg value="${SDK_INCLUDE}"/>
+      <arg value="/I"/><arg value="${JDK_HOME}\include"/>
+      <arg value="/I"/><arg value="${JDK_HOME}\include\win32"/>
+      <arg value="/I"/><arg value="src\jni\wia"/>
+      <arg value="/D"/><arg value="WIN32"/>
+      <arg value="/D"/><arg value="NDEBUG"/>
+      <arg value="/D"/><arg value="_WINDOWS"/>
+      <arg value="/D"/><arg value="_USRDLL"/>
+      <arg value="/D"/><arg value="INC_OLE2"/>
+      <arg value="/D"/><arg value="__WIN__"/>
+      <arg value="/D"/><arg value="_MSWIN_"/>
+      <arg value="/D"/><arg value="_TRACE_"/>
+      <arg value="/D"/><arg value="_STATIC_CPPLIB"/>
+      <arg value="/D"/><arg value="WIA2"/>
+      <arg value="..\src\jni\wia\WIAManager.cpp"/>
+      <arg value="..\src\jni\wia\WIADevice.cpp"/>
+      <arg value="..\src\jni\wia\WIACamera.cpp"/>
+      <arg value="..\src\jni\wia\WIAScanner.cpp"/>
+      <arg value="..\src\jni\wia\WIAUtils.cpp"/>
+      <arg value="..\src\jni\wia\WIAVersion.cpp"/>
+    </exec>
+    <exec dir="tmp" executable="${C_BIN}\link.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/LIBPATH:${C_LIB}"/>
+      <arg value="/LIBPATH:${SDK_LIB}"/>
+      <arg value="/OUT:morena32W2_${VERSION_BUILD}.dll"/>
+      <arg value="/INCREMENTAL:NO"/>
+      <arg value="/NOLOGO"/>
+      <arg value="/DLL"/>
+      <arg value="/SUBSYSTEM:WINDOWS"/>
+      <arg value="/OPT:REF"/>
+      <arg value="/OPT:ICF"/>
+      <arg value="/MACHINE:X86"/>
+      <arg value="/ERRORREPORT:PROMPT"/>
+      <arg value="WIAManager.obj"/>
+      <arg value="WIADevice.obj"/>
+      <arg value="WIACamera.obj"/>
+      <arg value="WIAScanner.obj"/>
+      <arg value="WIAUtils.obj"/>
+      <arg value="WIAVersion.obj"/>
+      <arg value="kernel32.lib"/>
+      <arg value="user32.lib"/>
+      <arg value="gdi32.lib"/>
+      <arg value="winspool.lib"/>
+      <arg value="comdlg32.lib"/>
+      <arg value="advapi32.lib"/>
+      <arg value="shell32.lib"/>
+      <arg value="ole32.lib"/>
+      <arg value="oleaut32.lib"/>
+      <arg value="wiaguid.lib"/>
+      <arg value="uuid.lib"/>
+      <arg value="ShLwApi.Lib"/>
+    </exec>
+  	<!-- 64 bit -->
+    <exec dir="tmp" executable="${C_BIN}\x86_amd64\cl.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/c"/>
+      <arg value="/MT"/>
+      <arg value="/TP"/>
+      <arg value="/Od"/>
+      <arg value="/EHsc"/>
+      <arg value="/nologo"/>
+      <arg value="/I"/><arg value="${C_INCLUDE}"/>
+      <arg value="/I"/><arg value="${SDK_INCLUDE}"/>
+      <arg value="/I"/><arg value="${JDK_HOME}\include"/>
+      <arg value="/I"/><arg value="${JDK_HOME}\include\win32"/>
+      <arg value="/I"/><arg value="src\jni\wia"/>
+      <arg value="/D"/><arg value="WIN32"/>
+      <arg value="/D"/><arg value="NDEBUG"/>
+      <arg value="/D"/><arg value="_WINDOWS"/>
+      <arg value="/D"/><arg value="_USRDLL"/>
+      <arg value="/D"/><arg value="INC_OLE2"/>
+      <arg value="/D"/><arg value="__WIN__"/>
+      <arg value="/D"/><arg value="_MSWIN_"/>
+      <arg value="/D"/><arg value="_TRACE_"/>
+      <arg value="/D"/><arg value="_STATIC_CPPLIB"/>
+      <arg value="/D"/><arg value="WIA1"/>
+      <arg value="..\src\jni\wia\WIAManager.cpp"/>
+      <arg value="..\src\jni\wia\WIADevice.cpp"/>
+      <arg value="..\src\jni\wia\WIACamera.cpp"/>
+      <arg value="..\src\jni\wia\WIAScanner.cpp"/>
+      <arg value="..\src\jni\wia\WIAUtils.cpp"/>
+      <arg value="..\src\jni\wia\WIAVersion.cpp"/>
+    </exec>
+    <exec dir="tmp" executable="${C_BIN}\x86_amd64\link.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/LIBPATH:${C_LIB}\amd64"/>
+      <arg value="/LIBPATH:${SDK_LIB}\x64"/>
+      <arg value="/OUT:morena64W1_${VERSION_BUILD}.dll"/>
+      <arg value="/INCREMENTAL:NO"/>
+      <arg value="/NOLOGO"/>
+      <arg value="/DLL"/>
+      <arg value="/SUBSYSTEM:WINDOWS"/>
+      <arg value="/OPT:REF"/>
+      <arg value="/OPT:ICF"/>
+      <arg value="/MACHINE:X64"/>
+      <arg value="/ERRORREPORT:PROMPT"/>
+      <arg value="WIAManager.obj"/>
+      <arg value="WIADevice.obj"/>
+      <arg value="WIACamera.obj"/>
+      <arg value="WIAScanner.obj"/>
+      <arg value="WIAUtils.obj"/>
+      <arg value="WIAVersion.obj"/>
+      <arg value="kernel32.lib"/>
+      <arg value="user32.lib"/>
+      <arg value="gdi32.lib"/>
+      <arg value="winspool.lib"/>
+      <arg value="comdlg32.lib"/>
+      <arg value="advapi32.lib"/>
+      <arg value="shell32.lib"/>
+      <arg value="ole32.lib"/>
+      <arg value="oleaut32.lib"/>
+      <arg value="wiaguid.lib"/>
+      <arg value="uuid.lib"/>
+      <arg value="ShLwApi.Lib"/>
+    </exec>
+    <!--  WIA2  -->
+    <exec dir="tmp" executable="${C_BIN}\x86_amd64\cl.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/c"/>
+      <arg value="/MT"/>
+      <arg value="/TP"/>
+      <arg value="/Od"/>
+      <arg value="/EHsc"/>
+      <arg value="/nologo"/>
+      <arg value="/I"/><arg value="${C_INCLUDE}"/>
+      <arg value="/I"/><arg value="${SDK_INCLUDE}"/>
+      <arg value="/I"/><arg value="${JDK_HOME}\include"/>
+      <arg value="/I"/><arg value="${JDK_HOME}\include\win32"/>
+      <arg value="/I"/><arg value="src\jni\wia"/>
+      <arg value="/D"/><arg value="WIN32"/>
+      <arg value="/D"/><arg value="NDEBUG"/>
+      <arg value="/D"/><arg value="_WINDOWS"/>
+      <arg value="/D"/><arg value="_USRDLL"/>
+      <arg value="/D"/><arg value="INC_OLE2"/>
+      <arg value="/D"/><arg value="__WIN__"/>
+      <arg value="/D"/><arg value="_MSWIN_"/>
+      <arg value="/D"/><arg value="_TRACE_"/>
+      <arg value="/D"/><arg value="_STATIC_CPPLIB"/>
+      <arg value="/D"/><arg value="WIA2"/>
+      <arg value="..\src\jni\wia\WIAManager.cpp"/>
+      <arg value="..\src\jni\wia\WIADevice.cpp"/>
+      <arg value="..\src\jni\wia\WIACamera.cpp"/>
+      <arg value="..\src\jni\wia\WIAScanner.cpp"/>
+      <arg value="..\src\jni\wia\WIAUtils.cpp"/>
+      <arg value="..\src\jni\wia\WIAVersion.cpp"/>
+    </exec>
+    <exec dir="tmp" executable="${C_BIN}\x86_amd64\link.exe">
+      <env key="PATH" path="${C_PATH}"/>
+      <arg value="/LIBPATH:${C_LIB}\amd64"/>
+      <arg value="/LIBPATH:${SDK_LIB}\x64"/>
+      <arg value="/OUT:morena64W2_${VERSION_BUILD}.dll"/>
+      <arg value="/INCREMENTAL:NO"/>
+      <arg value="/NOLOGO"/>
+      <arg value="/DLL"/>
+      <arg value="/SUBSYSTEM:WINDOWS"/>
+      <arg value="/OPT:REF"/>
+      <arg value="/OPT:ICF"/>
+      <arg value="/MACHINE:X64"/>
+      <arg value="/ERRORREPORT:PROMPT"/>
+      <arg value="WIAManager.obj"/>
+      <arg value="WIADevice.obj"/>
+      <arg value="WIACamera.obj"/>
+      <arg value="WIAScanner.obj"/>
+      <arg value="WIAUtils.obj"/>
+      <arg value="WIAVersion.obj"/>
+      <arg value="kernel32.lib"/>
+      <arg value="user32.lib"/>
+      <arg value="gdi32.lib"/>
+      <arg value="winspool.lib"/>
+      <arg value="comdlg32.lib"/>
+      <arg value="advapi32.lib"/>
+      <arg value="shell32.lib"/>
+      <arg value="ole32.lib"/>
+      <arg value="oleaut32.lib"/>
+      <arg value="wiaguid.lib"/>
+      <arg value="uuid.lib"/>
+      <arg value="ShLwApi.Lib"/>
+    </exec>
+    
+    <jar jarfile="lib/morena${VERSION_MAJOR}_win.jar" basedir="tmp" includes="morena*_${VERSION_BUILD}.dll">
+      <manifest>
+        <attribute name="Specification-Title" value="Morena - Image Acquisition Framework ${VERSION_MAJOR}.${VERSION_MINOR} build ${VERSION_BUILD}" />
+        <attribute name="Specification-Version" value="WIA/${VERSION_MAJOR}.${VERSION_MINOR}" />
+        <attribute name="Specification-Vendor" value="Gnome spol. s r. o." />
+        <attribute name="Implementation-Vendor" value="Gnome spol. s r. o." />
+        <attribute name="Class-Path" value="morena7_win.jar morena7_osx.jar morena_license.jar" />
+        <attribute name="Application-Name" value="Morena ${VERSION_MAJOR}" />
+        <attribute name="Permissions" value="all-permissions" />
+      </manifest>
+    </jar>
+    <signjar jar="lib/morena${VERSION_MAJOR}_win.jar" alias="jarsigning" storepass="${storepass}" keypass="${keypass}" keystore="${keystore}" />
+  </target>
+
+  <target name="build_osx_jni" depends="check_os" if="is_osx">
+    <mkdir dir="tmp"/>
+    <mkdir dir="lib"/>
+    <javah destdir="src/jni/ica" classpath="tmp" class="eu.gnome.morena.ica.ICAManager"/>
+    <javah destdir="src/jni/ica" classpath="tmp" class="eu.gnome.morena.ica.ICADevice"/>
+    <javah destdir="src/jni/ica" classpath="tmp" class="eu.gnome.morena.ica.ICACamera"/>
+    <javah destdir="src/jni/ica" classpath="tmp" class="eu.gnome.morena.ica.ICAScanner"/>
+  	<exec dir="tmp" executable="/usr/bin/g++">
+      <arg value="-isysroot"/><arg value="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk"/>
+  	  <arg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/A/Headers"/>
+  	  <arg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks/JavaNativeFoundation.framework/Headers"/>
+  	  <arg value="-I../src/jni/ica"/>
+  	  <arg value= "-fno-common"/>
+  	  <arg value="-fpascal-strings"/>
+  	  <arg value="-O2"/>
+  	  <arg value="-Wmost"/>
+  	  <!--<arg value="-Wno-deprecated-declarations"/>
+  	  <arg value="-Wno-sign-compare"/>
+  	  <arg value="-Wno-write-strings"/>-->
+  	  <arg value="-D_OSX_"/>
+  	  <arg value="-D_TRACE_"/>
+      <arg value="../src/jni/ica/ICAManager.m"/>
+      <arg value="../src/jni/ica/ICADevice.m"/>
+      <arg value="../src/jni/ica/ICACamera.m"/>
+      <arg value="../src/jni/ica/ICAScanner.m"/>
+      <arg value="../src/jni/ica/ICAUtils.m"/>
+      <arg value="../src/jni/ica/ICAVersion.m"/>
+  	  <arg value="-o"/><arg value="libmorena_${VERSION_BUILD}.jnilib"/>
+  	  <arg value="-framework"/><arg value="Cocoa"/>
+  	  <arg value="-framework"/><arg value="ImageCaptureCore"/>
+  		<arg value="-F/System/Library/Frameworks/JavaVM.framework/Versions/A/Frameworks"/>
+  	  <arg value="-framework"/><arg value="JavaNativeFoundation"/>
+  	  <arg value="-arch"/><arg value="i386"/>
+      <arg value="-arch"/><arg value="x86_64"/>
+  	  <arg value="-prebind"/>
+  	  <arg value="-dynamiclib"/>
+  	  <arg value="-compatibility_version"/><arg value="1"/>
+  	  <arg value= "-current_version"/><arg value="1"/>
+  	</exec>
+    <jar jarfile="lib/morena${VERSION_MAJOR}_osx.jar" basedir="tmp" includes="libmorena_${VERSION_BUILD}.jnilib">
+      <manifest>
+        <attribute name="Specification-Title" value="Morena - Image Acquisition Framework ${VERSION_MAJOR}.${VERSION_MINOR} build ${VERSION_BUILD}" />
+        <attribute name="Specification-Version" value="ICA/${VERSION_MAJOR}.${VERSION_MINOR}" />
+        <attribute name="Specification-Vendor" value="Gnome spol. s r. o." />
+        <attribute name="Implementation-Vendor" value="Gnome spol. s r. o." />
+        <attribute name="Class-Path" value="morena7_win.jar morena7_osx.jar morena_license.jar" />
+        <attribute name="Application-Name" value="Morena ${VERSION_MAJOR}" />
+        <attribute name="Permissions" value="all-permissions" />
+      </manifest>
+    </jar>
+    <signjar jar="lib/morena${VERSION_MAJOR}_osx.jar" alias="jarsigning" storepass="${storepass}" keypass="${keypass}" keystore="${keystore}" />
+  </target>
+	
+  <target name="build" depends="clean,check_os,build_classes,build_win_jni,build_osx_jni"  description="Build">
+  </target>
+  
+  <target name="build_docs" depends="build_classes">
+    <mkdir dir="doc/api" />
+    <javadoc public="true" sourcepath="src/java" classpath="tmp" destdir="doc/api" packagenames="eu.gnome.morena.*" />
+  	<mkdir dir="doc/examples" />
+    <javadoc linksource="true" nodeprecatedlist="true" notree="true" noindex="true" nohelp="true" nonavbar="true" classpath="tmp" 
+    	       destdir="doc/examples" sourcefiles="src/java/MorenaStudio.java,src/java/MorenaExample.java" />
+    <delete verbose="on" includeemptydirs="true">
+        <fileset dir="doc/examples" excludes="**/src-html/*.html"/>
+    </delete>
+  </target>
+		
+  <target name="clean" description="Clean">
+    <delete verbose="on" dir="tmp"/>
+    <delete verbose="on" dir="distribution"/>
+    <delete verbose="on" file="src/java/eu/gnome/morena/Version.java"/>
+    <delete verbose="on" file="src/jni/ica/ICAVersion.m"/>
+    <delete verbose="on" file="src/jni/wia/WIAVersion.cpp"/>
+  </target>
+
+	<target name="create_binary_distribution" depends="build,build_docs">
+		<delete file="morena-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}.zip" />
+		<zip zipfile="morena-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}.zip" basedir=".">
+			<include name="build.xml" />
+			<include name="COPYRIGHT.txt" />
+			<include name="NON-COMMERCIAL_CODE_LICENSE.txt" />
+			<include name="TRIAL_LICENSE.txt" />
+			<include name="readme.txt" />
+			<zipfileset dir="src/java" prefix="examples" includes="*.java"/>
+			<zipfileset dir="examples" prefix="examples" />
+			<zipfileset dir="doc" prefix="doc" />
+			<zipfileset dir="lib" prefix="lib" excludes="**/*license*" />
+		</zip>
+	</target>
+
+	<target name="create_source_distribution">
+		<delete file="morena-src-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}.zip" />
+		<zip zipfile="morena-src-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}.zip" basedir=".">
+			<include name="build.xml" />
+			<include name="COPYRIGHT.txt" />
+			<include name="SOURCE_CODE_LICENSE.txt" />
+			<include name="readme.txt" />
+			<zipfileset dir="src" prefix="src" />
+			<zipfileset dir="examples" prefix="examples" />
+			<zipfileset dir="doc" prefix="doc" />
+			<zipfileset dir="lib" prefix="lib" />
+		</zip>
+	</target>
+
+	<target name="upload" depends="create_binary_distribution" description="Upload examples to web">
+		<ftp server="${ftphost}" passive="yes" remotedir="${ftproot}/Twain" userid="${ftplogin}" password="${ftppass}" verbose="yes" binary="yes">
+			<fileset dir=".">
+				<!--<include name="doc/**/*.*" />
+				<include name="morena-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_BUILD}.zip" />-->
+				<include name="lib/*.jar" />
+				<include name="examples/*.html" />
+			</fileset>
+		</ftp>
+  </target>
+		
+</project>

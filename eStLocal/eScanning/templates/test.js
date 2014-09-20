@@ -1,0 +1,1 @@
+\"<!DOCTYPE html> <html lang=\\"en\\"> <head> <meta charset=\"UTF-8\"> <title>Image Preview</title> </head>  <body> <div > <a href=\"#\" class=\"\"> <img id=\"s1\" style=\" display: block;\" src=\"static/images/2.jpg\"></img> </a> </div>  </body> </html>'

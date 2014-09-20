@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+
+    </style>
+    
+    <script src="../js/base64.js"></script>
+<script src="../js/canvas2image.js"></script>
+  </head>
+  
+  <body>
+    <canvas id="myCanvas" ></canvas>
+    <script>
+    var canvas = document.getElementById('myCanvas');
+      function loadCanvas(dataURL) {
+        
+        var context = canvas.getContext('2d');
+
+        // load image from data url
+        var imageObj = new Image();
+        imageObj.onload = function() { 
+          context.canvas.width  = window.innerWidth;
+  		  context.canvas.height = window.innerHeight;
+  		  context.drawImage(this, 0, 0);
+        };
+
+        imageObj.src = '../images/2.jpg';
+         
+      }
+      
+      
+       
+      // make ajax call to get image data url
+      var request = new XMLHttpRequest();
+      request.open('GET', 'http://www.html5canvastutorials.com/demos/assets/dataURL.txt', true);
+      request.onreadystatechange = function() {
+        // Makes sure the document is ready to parse.
+        if(request.readyState == 4) {
+          // Makes sure it's found the file.
+          if(request.status == 200) {
+            loadCanvas(request.responseText);
+          }
+        }
+      };
+      request.send(null);
+
+    </script>
+  </body>
+</html>      

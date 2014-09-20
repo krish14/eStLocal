@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Saving canvas data to image file</title>
+
+<script src="../js/base64.js"></script>
+<script src="../js/canvas2image.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../common.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+<script type="text/javascript">
+
+$().ready(function() {
+    $(".rp").click(function() {
+        var rot = (parseInt($(this).attr("data-rotate"))+90)%360;
+        $(this).attr("data-rotate",rot);
+        $(this).css("-webkit-transform", "rotate("+rot+"deg)");
+        $(this).css("-moz-transform", "rotate("+rot+"deg)");
+        $(this).css("-ms-transform", "rotate("+rot+"deg)");
+    });
+});
+</script>
+
+
+</head>
+<body>
+	
+<div id = "div">
+    <img src="http://dummyimage.com/100" class="rp" data-rotate="0">
+    <img src="http://dummyimage.com/100" class="rp" data-rotate="0">
+    <img src="http://dummyimage.com/100" class="rp" data-rotate="0">
+</div>
+
+
+<canvas id="viewport"></canvas>
+
+</body>
+</html>
