@@ -3,13 +3,19 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>eScanning</title>
-
+		<link href='static/css/jquery.guillotine.css' media='all' rel='stylesheet'>
 		<link rel="stylesheet" href="static/css/bootstrap-3.2.0.css">
 		<link rel="stylesheet" href="static/css/bootstrap-theme-3.2.0.css">
 		<link rel="stylesheet" href="static/css/esc_custom.css">
 		<link  href="static/css/cropper.css" rel="stylesheet">
+		<link  href="static/css/demo.css" rel="stylesheet">
+
+		<!--[if lt IE 9]>
+   			 <script src='static/js/respond.js'></script>
+ 		 <![endif]-->
 		<script src="static/js/jquery-1.11.1.min.js"></script>
 		<title>eScanning</title>
+		
 	</head>
 
 	<body>
@@ -43,8 +49,8 @@
 											Launch Scanner
 										</button></td>
 										<td>
-										<button type="button" class="btn btn-default">
-											LargePrimary
+										<button id="launch_modal2" type="button" class="btn btn-default">
+											Launch Modal 2
 										</button></td>
 									</tr>
 									<tr>
@@ -174,12 +180,83 @@
 		</div><!-- /.modal -->
 
 		<!-- End modal -->
+
+
+		<!-- NEW MODAL -->
+
+		<div class="modal bs-example-modal-lg" id="imageEdit-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title">Modal title</h4>
+					</div>
+					<div class="modal-body">
+
+						<div id='content'>
+						    <h1>Guillotine demo</h1>
+						
+						    <div class='frame'>
+						      <img id='sample_picture' src='static/images/5.jpg' style="height:400px; width:400px">
+						    </div>
+						
+						    <div id='controls'>
+						      <button id='rotate_left'  type='button' title='Rotate left'> &lt; </button>
+						      <button id='zoom_out'     type='button' title='Zoom out'> - </button>
+						      <button id='fit'          type='button' title='Fit image'> [ ]  </button>
+						      <button id='zoom_in'      type='button' title='Zoom in'> + </button>
+						      <button id='rotate_right' type='button' title='Rotate right'> &gt; </button>
+						    </div>
+						
+						    <ul id='data'>
+						      <div class='column'>
+						        <li>x: <span id='x'></span></li>
+						        <li>y: <span id='y'></span></li>
+						      </div>
+						      <div class='column'>
+						        <li>width:  <span id='w'></span></li>
+						        <li>height: <span id='h'></span></li>
+						      </div>
+						      <div class='column'>
+						        <li>scale: <span id='scale'></span></li>
+						        <li>angle: <span id='angle'></span></li>
+						      </div>
+						    </ul>
+						  </div>
+
+					</div>
+					<div class="modal-footer">
+						<button id="crop"type="button" class="btn btn-default" >
+							Crop
+						</button>
+					<!-- 
+						<button id="new_scan" type="button" class="btn btn-default" >
+							New Scan
+						</button>
+					 -->
+						<button type="button" class="btn btn-default" data-dismiss="modal">
+							Close
+						</button>
+						<button id="save" type="button" class="btn btn-primary">
+							Save Changes
+						</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<!-- END MODAL -->
 		
 		<div id="hidden_values">
 		</div>
 		
+		
+		<script src='static/js/jquery.guillotine.js'></script>
 		<script src="static/js/bootstrap-3.2.0.js"></script>
 		<script src="static/js/cropper.js"></script>
+		
 		<script type="text/javascript" src="static/js/esc_custom.js"></script>
 
 	</body>

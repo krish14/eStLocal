@@ -7,6 +7,31 @@ var imageData = '';
 // ***********COMMON VARIABLES****************
 $(document).ready(function() {
 
+			//-----------------------
+	
+			    var picture = $('#sample_picture');
+			    picture.on('load', function(){
+			      // Initialize plugin (with custom event)
+			      picture.guillotine({eventOnChange: 'guillotinechange'});
+			
+			      // Display inital data
+			      var data = picture.guillotine('getData');
+			      for(var key in data) { $('#'+key).html(data[key]); }
+			
+			      // Bind button actions
+			      $('#rotate_left').click(function(){ picture.guillotine('rotateLeft'); });
+			      $('#rotate_right').click(function(){ picture.guillotine('rotateRight'); });
+			      $('#fit').click(function(){ picture.guillotine('fit'); });
+			      $('#zoom_in').click(function(){ picture.guillotine('zoomIn'); });
+			      $('#zoom_out').click(function(){ picture.guillotine('zoomOut'); });
+			
+			      // Update data on change
+			      picture.on('guillotinechange', function(ev, data, action) {
+			        data.scale = parseFloat(data.scale.toFixed(4));
+			        for(var k in data) { $('#'+k).html(data[k]); }
+			      });
+			    });
+			//-----------------------
 		        $('.dropdown-toggle').dropdown();
 			// $('button').css('height', $('button').parent('td').height());
 			// $('button').css('width', $('button').parent('td').width());
@@ -15,7 +40,9 @@ $(document).ready(function() {
 			 * $(".cropper").cropper({ aspectRatio: 1.618, preview:
 			 * ".img-preview", done: function(data) { console.log(data); } });
 			 */
-
+		        
+		       
+		        
 			var $modal = $("#bootstrap-modal"), $image = $modal
 					.find(".bootstrap-modal-cropper img"), originalData = {};
 
@@ -40,6 +67,13 @@ $(document).ready(function() {
 
 				launchScanner();
 			});
+			
+			$("#launch_modal2").click(function() {
+				 
+				$('#imageEdit-modal').modal('show');
+				 
+			});
+
 
 			$('#zoom_in').click(function() {
 				zoomIn($(this));
@@ -77,6 +111,7 @@ $(document).ready(function() {
 				
 				var count   = $("#hidden_values a").length + 1;
 				fieldSource = $('#croped-img').attr('src');
+				if(fieldSource !== ""){
 				inputValue  = "<a href=\"#\" class=\"\"> <img id=\"i"+count+"\" style=\" display: block;\" src="+fieldSource +"></img> </a>";
 				
 				pageString  = "<!DOCTYPE html> <html lang=\"en\"> <head> <meta charset=\"UTF-8\"> <title>Image Preview</title> </head>  <body>"; 
@@ -88,18 +123,26 @@ $(document).ready(function() {
 				thumbNail += "</img> </a> </div>";
 				
 				input = $(inputValue);
-				$('#hidden_values').append(input);
-				
-				//$('#inputid').remove();
 				
 				if (count <= 3){
 					
 					$('#p'+count).attr('src',fieldSource);
+					$('#hidden_values').append(input);
+					$('#croped-img').attr('src',"");
 				} else {
 					
-					$(thumbNail).appendTo('#thumbnail_row');		
+					$(thumbNail).appendTo('#thumbnail_row');
+					$('#hidden_values').append(input);
+					$('#croped-img').attr('src',"");
 				}
-								
+				
+				$('#bootstrap-modal').modal('hide');
+				
+				} else {
+					alert("IMAGE NOT CROPPED USE CLOSE OPTION TO EXIT WITHOUT CROP")
+				}
+				
+				
 				
 			});
 			
